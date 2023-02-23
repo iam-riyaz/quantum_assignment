@@ -1,0 +1,9 @@
+.container{
+    width: 500px;
+    background-color: rgb(208, 204, 204);
+    height: 600px;
+}
+.msgBox{
+    height: 550px;
+    border: 1px dotted gray;
+}
