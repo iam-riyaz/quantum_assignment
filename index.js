@@ -4,7 +4,7 @@ const messageInput = document.querySelector(".message");
 const messageBox = document.querySelector(".msgBox");
 const sendBtn = document.querySelector(".sendBtn");
 
-const myName= prompt("enter your name","Name")
+const myName = prompt("enter your name","Name")
 
 socket.on("sendMsg",(data)=>{
     // document.querySelector(".textline").innerHTML=data
@@ -18,6 +18,8 @@ const fn = () => {
   console.log(inputData);
 
   let output=`${myName}: ${inputData}`
+  const line= document.createElement("p")
+  line.innerHTML=`you: ${inputData}`
   socket.emit("sendMessage", output);
   // const line= document.createElement("p").innerHTML(`${name}:${inputData}`)
   // messageBox.append(line)

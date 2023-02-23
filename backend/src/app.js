@@ -5,12 +5,14 @@ dotev.config();
 const User = require("./schema/userSchema");
 const { json } = require("body-parser");
 const app = express();
-const cors = require ("cors")
-app.use(cors())
+const cors = require("cors");
+app.use(cors());
+const tokenVerifier = require("./tokenVerifier");
 
 // const io= require("socket.io")(2000,{cors:{origin:"*"}});
 
 const http = require("http");
+const generateJwtToken  = require("./generateToken");
 const server = http.createServer(app);
 // const { Server } = require("socket.io");
 const io = require("socket.io")(server, { cors: { origin: "*" } });
@@ -22,33 +24,39 @@ app.get("/", async (req, res) => {
   res.send("listening on port 2000");
 });
 
-app.get("/users", async (req, res) => {
+app.get("/sendMessage", tokenVerifier, async (req, res) => {
   const users = await User.find();
   if (users.length == 0) {
     res.status(400).send("user not found");
   } else {
-    res.status(200).send(users);
+    res.status(200).send(`now you are authenticated as username: ${users[0].username}, now you can send messages`); 
   }
 });
 
 app.post("/signup", async (req, res) => {
-  const { name, password } = req.body;
-  const user = await new User({ name, password });
+  const { username, password } = req.body;
+  const user = await new User({ username, password });
   user.save();
   res.send(user);
 });
 
 app.post("/login", async (req, res) => {
-  const { name, password } = req.body;
+  const { username, password } = req.body;
 
-  const user = await User.findOne({ name: name, password: password });
-
+  const user = await User.findOne({ username: username, password: password });
   if (!user) {
     res.status(404).send("user not found");
   } else {
-    res.status(200).send("user logged in successfully");
+    const token = generateJwtToken(user);
+    res.status(200).send({
+      success: true,
+      status: 200,
+      message: "Login Successfully",
+      data: { user, token },
+    });
   }
 });
+
 
 connectDb().then(() => {
   server.listen(PORT, () => {
